@@ -23,6 +23,10 @@
    OTHER DEALINGS IN THE SOFTWARE.
 ]]
 
+local _PATH       = (...):gsub('%.[^%.]+$', '')
+local Vox_model   = require(_PATH..".vox2png.vox_model")
+local Vox_texture = require(_PATH..".vox2png.vox_texture")
+
 -- Generates new modelData from a path
 local function newFromPath(path)
    local modelData    = dofile(path.."/flags.lua")
@@ -39,8 +43,8 @@ local function newFromPath(path)
 end
 
 -- Generates new modelData from an image
-local function newFromImage(imageData)
-   local w, h = imageData:getDimensions()
+local function newFromImage(imageData, w, h)
+   local w, h = w or imageData:getWidth(), h or imageData:getHeight()
    local size = w * h
 
    -- Map texture from source
@@ -84,12 +88,41 @@ local function newFromFunc(func, w, h)
    return newFromImage(c:newImageData())
 end
 
+-- Generates new ModelData from a .vox
+-- !! This function is very slow. Only use it for testing !!
+local function newFromVox(file)
+   file:open("r")
+		local model = Vox_model.new(file:read())
+	file:close()
+
+	local texture = Vox_texture.new(model)
+
+   -- Create new modelData
+   local modelData = {
+      width  = texture.sizeX,
+      height = texture.sizeY,
+      frames = texture.canvas:getWidth() / texture.sizeX,
+      quads  = {},
+      texture = texture.canvas,
+   }
+   modelData.spritebatch = love.graphics.newSpriteBatch(modelData.texture, modelData.frames)
+
+   -- Setup quads
+   local w, h = modelData.texture:getDimensions()
+   for i = 0, modelData.frames - 1 do
+      modelData.quads[i + 1] = love.graphics.newQuad(i * modelData.width, 0, modelData.width, modelData.height, w, h)
+   end
+
+   -- Return new modelData
+   return modelData
+end
+
 -- Super constructor
 local function new(source, w, h)
    local t = type(source)
 
-   if t == "string" then return newFromPath(source)
-   elseif t == "userdata" then return newFromImage(source)
+   if     t == "string"   then return newFromPath(source)
+   elseif t == "userdata" then return newFromImage(source, w, h)
    elseif t == "function" then return newFromFunc(source, w, h) end
 
    error("Wrong source type. Expected 'string' or 'userdata' or 'function'. Got '"..t.."'.")
@@ -101,6 +134,7 @@ return setmetatable({
    newFromPath  = newFromPath,
    newFromImage = newFromImage,
    newFromFunc  = newFromFunc,
+   newFromVox   = newFromVox,
 }, {
    __call = function(_, ...) return new(...) end
 })

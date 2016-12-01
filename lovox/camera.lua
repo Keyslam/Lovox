@@ -27,6 +27,7 @@ local _PATH  = (...):gsub('%.[^%.]+$', '')
 local Zlist  = require(_PATH..".zlist")
 
 -- Localized cos and sin for performance improvement in worldToScreen & screenToWorld
+-- Also used in getBoundingBox and update
 local cos, sin = math.cos, math.sin
 
 -- Internally used to render a model, can be used to directly draw a model without using the z-buffer
@@ -55,7 +56,7 @@ end
 
 -- Returns x, y, w, h of the camera as a bounding box
 local function getBoundingBox(self)
-   local s, c = math.sin(self.rotation), math.cos(self.rotation)
+   local s, c = sin(self.rotation), cos(self.rotation)
    if s < 0 then s = -s end
    if c < 0 then c = -c end
    return self.x, self.y, self.h * s + self.w * c, self.h * c + self.w * s
@@ -86,14 +87,19 @@ end
 
 -- Updates the camera importance values
 local function update(self, dt)
-   self.ximportance = -math.sin(self.rotation)
-   self.yimportance =  math.cos(self.rotation)
+   self.ximportance = -sin(self.rotation)
+   self.yimportance =  cos(self.rotation)
 end
 
 -- Renders all the models and clears the z-buffer
 local function render(self)
+   local r, g, b, a = love.graphics.getColor()
+   love.graphics.setColor(255, 255, 255)
+
    self.buffer:forEach(renderModel, self)
    self.buffer:clear()
+
+   love.graphics.setColor(r, g, b, a)
 end
 
 -- Resizes the camera size to the screen size
@@ -137,5 +143,4 @@ local function new()
 end
 
 -- Return a camera
-local c = new()
-return c
+return new()

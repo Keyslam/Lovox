@@ -38,9 +38,9 @@ end
 
 -- Draw a model and add it to the zbuffer
 local function draw(self, x, y, z, rotation, xScale, yScale)
-   x, y, z        = x, y, z or 0, 0, 0
+   x, y, z        = x, y, z  or 0, 0, 0
+   xScale, yScale = xScale   or 1, yScale or 1
    rotation       = rotation or 0
-   xScale, yScale = xScale or 1, yScale or 1
 
    self.x, self.y, self.z = x, y, z
    self.rotation          = rotation + Camera.rotation
@@ -78,6 +78,7 @@ local function new(modelData)
       rotation = 0,
       depth    = 0,
 
+      color       = {255, 255, 255, 255},
       spritebatch = nil,
       ids         = {},
 

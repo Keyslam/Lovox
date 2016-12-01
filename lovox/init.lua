@@ -1,10 +1,29 @@
-local _PATH = (...):gsub('%.[^%.]+$', '')
+local _PATH       = (...):gsub('%.[^%.]+$', '')
+local Vox_model   = require(_PATH..".vox2png.vox_model")
+local Vox_texture = require(_PATH..".vox2png.vox_texture")
+
+local flagFormat = [[
+return {
+	frames = %1.f,
+	width  = %1.f,
+	height = %1.f,
+}
+]]
+local function vox2png(file)
+   file:open("r")
+		local model = Vox_model.new(file:read())
+	file:close()
+
+   local texture = vox_texture.new(model)
+
+   return texture.canvas:newImageData():encode("png"), string.format(flagFormat, texture.canvas:getWidth() / texture.sizeX, texture.sizeX, texture.sizeY)
+end
 
 return {
-   _VERSION = "Voxol 1.0.0",
+   _VERSION     = "Voxol 1.0.0",
    _DESCRIPTION = "A set of modules to load and render voxels in Love2d",
-   _URL = "",
-   _LICENSE = [[
+   _URL         = "https://github.com/tjakka5",
+   _LICENSE     = [[
       Copyright (c) 2016 Justin van der Leij 'Tjakka5'
 
       Permission is hereby granted, free of charge, to any person
@@ -33,4 +52,5 @@ return {
    camera    = require(_PATH..".camera"),
    modelData = require(_PATH..".modelData"),
    model     = require(_PATH..".model"),
+   vox2png   = vox2png,
 }

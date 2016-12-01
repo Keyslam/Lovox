@@ -44,3 +44,12 @@ function love.mousemoved(x, y, dx, dy)
       Camera:rotate(-(dx / 100))
    end
 end
+
+function love.resize(w, h)
+   Camera:resize(w, h)
+end
+
+-- Replace the circle model with the dropped model
+function love.filedropped(file)
+    Circle = Model(ModelData.newFromVox(file))
+end
