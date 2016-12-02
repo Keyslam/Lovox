@@ -89,8 +89,8 @@ end
 
 -- Updates the camera importance values
 local function update(self, dt)
-   self.ximportance = -sin(self.rotation)
-   self.yimportance =  cos(self.rotation)
+   self.ximportance = sin(self.rotation)
+   self.yimportance = cos(self.rotation)
 end
 
 -- Renders all the models and clears the z-buffer
