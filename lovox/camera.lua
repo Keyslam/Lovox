@@ -36,6 +36,7 @@ local function renderModel(model, self)
    love.graphics.draw(model.spritebatch, newx, newy, nil, self.scale, self.scale)
 end
 
+
 -- Setters for position
 local function move(self, dx, dy) self.x, self.y = self.x + dx, self.y + dy end
 local function moveTo(self, x, y) self.x, self.y = x, y end
@@ -45,7 +46,7 @@ local function rotate(self, r)   self.rotation = self.rotation + r end
 local function rotateTo(self, r) self.rotation = r end
 
 -- Setters for scale
-local function zoom(self, s)   self.scale = self.scale + s end
+local function zoom(self, s)   self.scale = self.scale * s end
 local function zoomTo(self, s) self.scale = s end
 
 
@@ -80,6 +81,7 @@ local function screenToWorld(self, x, y)
 	return x + self.x, y + self.y, 0
 end
 
+
 -- Adds a model to the z-buffer
 local function draw(self, model)
    self.buffer:add(model, model.depth)
@@ -109,14 +111,14 @@ local function resize(self, w, h)
 end
 
 -- Constructor
-local function new()
+local function new(x, y, rotation, scale)
    return {
-      x = 0,
-      y = 0,
+      x = x or 0,
+      y = y or 0,
       w = love.graphics.getWidth(),
       h = love.graphics.getHeight(),
-      rotation    = 0,
-      scale       = 1,
+      rotation    = rotation or 0,
+      scale       = scale    or 1,
       ximportance = 0,
       yimportance = 0,
       buffer      = Zlist(),
@@ -143,4 +145,31 @@ local function new()
 end
 
 -- Return a camera
-return new()
+local Module = {
+   current = new(),
+
+   new      = new,
+   move     = move,
+   moveTo   = moveTo,
+   rotate   = rotate,
+   rotateTo = rotateTo,
+   zoom     = zoom,
+   zoomTo   = zoomTo,
+
+   getDepth       = getDepth,
+   getBoundingBox = getBoundingBox,
+   worldToScreen  = worldToScreen,
+   screenToWorld  = screenToWorld,
+
+   draw   = draw,
+   update = update,
+   render = render,
+   resize = resize,
+
+   renderModel = renderModel,
+}
+
+return setmetatable(Module, {
+   __index = Module.current,
+   __call  = function(_, ...) return new(...) end,
+})
