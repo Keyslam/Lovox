@@ -35,7 +35,7 @@ local function add(self, object, z)
       local place   = 0
       local pointer = self.pointer
 
-      while pointer ~= 0 and self.zlist[pointer] < z do
+      while pointer ~= 0 and self.zlist[pointer] > z do
          place = pointer
          pointer = self.points[pointer]
       end
