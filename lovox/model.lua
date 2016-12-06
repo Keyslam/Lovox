@@ -51,7 +51,7 @@ local function draw(self, x, y, z, rotation, xScale, yScale)
             self.ids[frame],
             self.quads[frame],
             0, 0 - frame * yScale,
-            self.rotation,
+            rot,
             xScale, yScale,
             self.width  / 2,
             self.height / 2

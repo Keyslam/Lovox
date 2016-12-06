@@ -24,9 +24,6 @@ local CircleRot  = 0
 function love.update(dt)
    -- Rotate our circle
    CircleRot = CircleRot + dt
-
-   -- Update the camera
-   Camera:update(dt)
 end
 
 function love.draw()
