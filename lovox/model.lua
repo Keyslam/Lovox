@@ -38,16 +38,13 @@ end
 
 -- Draw a model and add it to the zbuffer
 local function draw(self, x, y, z, rotation, xScale, yScale)
-   x, y, z        = x, y, z  or 0, 0, 0
-   xScale, yScale = xScale   or 1, yScale or 1
-   rotation       = rotation or 0
+   rotation, xScale, yScale = rotation or 0, xScale or 0, yScale or 0
 
-   self.x, self.y, self.z = x, y, z
-   self.rotation          = rotation + Camera.rotation
-   self.depth             = Camera:getDepth(x, y, z)
+   self.x, self.y = Camera:worldToScreen(x, y, z)
 
    -- Only re-render when needed
-   if self.rotation ~= self.oldRotation or self.xScale ~= self.oldxScale or self.yScale ~= self.oldyScale then
+   local rot = rotation + Camera.rotation
+   if rot ~= self.rotation or xScale ~= self.xScale or yScale ~= self.yScale then
       -- Loop trough all textures and draw them with a offset
       for frame = 1, self.frames do
          self.spritebatch:set(
@@ -62,9 +59,9 @@ local function draw(self, x, y, z, rotation, xScale, yScale)
       end
 
       -- Log the rotation and scale
-      self.oldRotation = self.rotation
-      self.oldxScale   = self.xScale
-      self.oldyScale   = self.yScale
+      self.rotation = rot
+      self.xScale   = xScale
+      self.yScale   = yScale
    end
 
    -- Tell the camera to draw this model
@@ -74,17 +71,15 @@ end
 -- Create a new model object
 local function new(modelData)
    local model = setmetatable({
-      x = 0, y = 0, z = 0,
-      rotation = 0,
+      x = 0, y = 0,
       depth    = 0,
 
-      color       = {255, 255, 255, 255},
       spritebatch = nil,
       ids         = {},
 
-      oldRotation = math.huge,
-      oldxScale   = math.huge,
-      oldyScale   = math.huge,
+      rotation = math.huge,
+      xScale   = math.huge,
+      yScale   = math.huge,
 
       setup  = setup,
       draw   = draw,

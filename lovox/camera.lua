@@ -32,8 +32,7 @@ local cos, sin = math.cos, math.sin
 
 -- Internally used to render a model, can be used to directly draw a model without using the z-buffer
 local function renderModel(model, self)
-   local newx, newy = self:worldToScreen(model.x, model.y, model.z)
-   love.graphics.draw(model.spritebatch, newx, newy, nil, self.scale, self.scale)
+   love.graphics.draw(model.spritebatch, model.x, model.y, nil, self.scale, self.scale)
 end
 
 
@@ -50,11 +49,6 @@ local function zoom(self, s)   self.scale = self.scale * s end
 local function zoomTo(self, s) self.scale = s end
 
 
--- Returns a 'Depth value'. Value is small when close to the bottom of the screen
-local function getDepth(self, x, y, z)
-   return x * self.ximportance + y * self.yimportance + z
-end
-
 -- Returns x, y, w, h of the camera as a bounding box
 local function getBoundingBox(self)
    local s, c = sin(self.rotation), cos(self.rotation)
@@ -66,7 +60,7 @@ end
 -- Translates x, y, z in the world into x, y on the screen.
 -- !! Code taken from Hump's camera. Credit goes to vrld !!
 local function worldToScreen(self, x, y, z)
-	local c, s = cos(self.rotation), sin(self.rotation)
+	local c, s = self.pcos, self.psin
 	x, y = x - self.x, y - self.y
 	x, y = c * x - s * y, s * x + c * y
 	return x * self.scale + self.w / 2, y * self.scale + self.h / 2 - z
@@ -75,7 +69,7 @@ end
 -- Translates x, y on the screen into x, y, z in the world. z is 0
 -- !! Code taken from Hump's camera. Credit goes to vrld !!
 local function screenToWorld(self, x, y)
-	local c, s = cos(-self.rotation), sin(-self.rotation)
+	local c, s = self.ncos, self.nsin
 	x, y = (x - self.w / 2) / self.scale, (y - self.h / 2) / self.scale
 	x, y = c * x - s * y, s * x + c * y
 	return x + self.x, y + self.y, 0
@@ -84,13 +78,13 @@ end
 
 -- Adds a model to the z-buffer
 local function draw(self, model)
-   self.buffer:add(model, model.depth)
+   self.buffer:add(model, model.y)
 end
 
 -- Updates the camera importance values
 local function update(self, dt)
-   self.ximportance = sin(self.rotation)
-   self.yimportance = cos(self.rotation)
+   self.psin, self.nsin = sin(self.rotation), sin(-self.rotation)
+   self.pcos, self.ncos = cos(self.rotation), cos(-self.rotation)
 end
 
 -- Renders all the models and clears the z-buffer
@@ -119,8 +113,8 @@ local function new(x, y, rotation, scale)
       h = love.graphics.getHeight(),
       rotation    = rotation or 0,
       scale       = scale    or 1,
-      ximportance = 0,
-      yimportance = 0,
+      psin = 0, nsin = 0,
+      pcos = 0, ncos = 0,
       buffer      = Zlist(),
 
       move     = move,
@@ -130,7 +124,6 @@ local function new(x, y, rotation, scale)
       zoom     = zoom,
       zoomTo   = zoomTo,
 
-      getDepth       = getDepth,
       getBoundingBox = getBoundingBox,
       worldToScreen  = worldToScreen,
       screenToWorld  = screenToWorld,
@@ -156,7 +149,6 @@ local Module = {
    zoom     = zoom,
    zoomTo   = zoomTo,
 
-   getDepth       = getDepth,
    getBoundingBox = getBoundingBox,
    worldToScreen  = worldToScreen,
    screenToWorld  = screenToWorld,
