@@ -47,12 +47,12 @@ local function rotateTo(self, r)
 end
 
 -- Setters for scale
-local function zoom(self, s)   self.scale = self.scale * s end
+local function zoom(self, s) self.scale = self.scale * s end
 local function zoomTo(self, s) self.scale = s end
 
 
 -- Updates the camera importance values
-local function updateRotations(self, dt)
+local function updateRotations(self)
    self.psin, self.nsin = math.sin(self.rotation), math.sin(-self.rotation)
    self.pcos, self.ncos = math.cos(self.rotation), math.cos(-self.rotation)
 end
@@ -62,7 +62,9 @@ local function getBoundingBox(self)
    local s, c = self.psin, self.pcos
    if s < 0 then s = -s end
    if c < 0 then c = -c end
-   return self.x, self.y, self.h * s + self.w * c, self.h * c + self.w * s
+   local w, h = self.w / self.scale, self.h / self.scale
+   local sw, sh = h * s + w * c, h * c + w * s
+   return self.x - sw / 2, self.y - sh / 2, sw, sh
 end
 
 -- Translates x, y, z in the world into x, y on the screen.
@@ -102,6 +104,7 @@ end
 
 -- Resizes the camera size to the screen size
 local function resize(self, w, h)
+   w, h = w or love.graphics.getWidth(), h or love.graphics.getHeight()
    self.w = w
    self.h = h
 end
@@ -111,12 +114,12 @@ local function new(x, y, rotation, scale)
    return {
       x = x or 0,
       y = y or 0,
-      w = love.graphics.getWidth(),
-      h = love.graphics.getHeight(),
+      w = love.graphics.getWidth()  * (scale or 1),
+      h = love.graphics.getHeight() * (scale or 1),
       rotation    = rotation or 0,
       scale       = scale    or 1,
-      psin = math.sin(0), nsin = math.sin(0),
-      pcos = math.cos(0), ncos = math.cos(0),
+      psin = math.sin(rotation or 0), nsin = math.sin(rotation or 0),
+      pcos = math.cos(rotation or 0), ncos = math.cos(rotation or 0),
       buffer      = Zlist(),
 
       move     = move,
