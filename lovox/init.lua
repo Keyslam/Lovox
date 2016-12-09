@@ -51,6 +51,7 @@ return {
    zlist     = require(_PATH..".zlist"),
    camera    = require(_PATH..".camera"),
    modelData = require(_PATH..".modelData"),
+	animModel = require(_PATH..".animModel"),
    model     = require(_PATH..".model"),
    vox2png   = vox2png,
 }

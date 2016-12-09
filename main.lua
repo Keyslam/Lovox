@@ -5,11 +5,19 @@ love.graphics.setDefaultFilter("nearest", "nearest")
 local Lovox     = require "lovox"
 local ModelData = Lovox.modelData
 local Model     = Lovox.model
+local AnimModel = Lovox.animModel
 local Camera    = Lovox.camera
 
 -- Load a boat
 local BoatData = ModelData("boat")
 local Boat     = Model(BoatData)
+
+-- Load cubes as a animation
+local b1, b2, b3 = ModelData("cube/1"), ModelData("cube/2"), ModelData("cube/3")
+local Cube       = AnimModel({b1, b2, b3}, 1)
+Cube:setLooping(true)
+Cube:play()
+
 
 -- Load a model from a function
 local func = function()
@@ -24,12 +32,15 @@ local CircleRot  = 0
 function love.update(dt)
    -- Rotate our circle
    CircleRot = CircleRot + dt
+
+   Cube:update(dt)
 end
 
 function love.draw()
    -- Draw our models
-   Boat:draw(-200, 0, 0, nil, 4, 4)
-   Circle:draw( 200, 0, 0, CircleRot, 4, 4)
+   Boat:draw  (-200,    0, 0, nil,       4, 4)
+   Cube:draw  (   0, -200, 0, nil,       4, 4)
+   Circle:draw( 200,    0, 0, CircleRot, 4, 4)
 
    -- Render all our models
    Camera:render()
