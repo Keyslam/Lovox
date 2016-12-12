@@ -29,7 +29,7 @@ local Vox_texture = require(_PATH..".vox2png.vox_texture")
 
 -- Generates new modelData from a path
 local function newFromPath(path)
-   local modelData    = dofile(path.."/flags.lua")
+   local modelData    = require(path.."/flags")
    modelData.texture  = love.graphics.newImage(path.."/texture.png")
    modelData.quads    = {}
 
