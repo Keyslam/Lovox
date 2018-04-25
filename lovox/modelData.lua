@@ -123,9 +123,9 @@ local function new(source, w, h)
    local t = type(source)
 
    if t == "string" then
-      if love.filesystem.isDirectory(source) then
+      if love.filesystem.getInfo(source).type == 'directory' then
          return newFromPath(source)
-      elseif love.filesystem.isFile(source) then
+      elseif love.filesystem.getInfo(source).type == 'file' then
          return newFromVox(source)
       end
    elseif t == "userdata" then
