@@ -1,6 +1,6 @@
 function love.conf(t)
 	t.identity = "Lovox demo"
-	t.version  = "0.10.1"
+	t.version  = "11.0"
 	t.console  = false
 
 	t.window.title  = "Lovox demo"

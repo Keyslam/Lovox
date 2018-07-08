@@ -90,7 +90,8 @@ end
 
 -- Generates new ModelData from a .vox
 -- !! This function is very slow. Only use it for testing !!
-local function newFromVox(file)
+local function newFromVox(path)
+   local file = love.filesystem.newFile(path)
    file:open("r")
 		local model = Vox_model.new(file:read())
 	file:close()
@@ -121,9 +122,17 @@ end
 local function new(source, w, h)
    local t = type(source)
 
-   if     t == "string"   then return newFromPath(source)
-   elseif t == "userdata" then return newFromImage(source, w, h)
-   elseif t == "function" then return newFromFunc(source, w, h) end
+   if t == "string" then
+      if love.filesystem.getInfo(source).type == 'directory' then
+         return newFromPath(source)
+      elseif love.filesystem.getInfo(source).type == 'file' then
+         return newFromVox(source)
+      end
+   elseif t == "userdata" then
+      return newFromImage(source, w, h)
+   elseif t == "function" then
+      return newFromFunc(source, w, h)
+   end
 
    error("Wrong source type. Expected 'string' or 'userdata' or 'function'. Got '"..t.."'.")
 end

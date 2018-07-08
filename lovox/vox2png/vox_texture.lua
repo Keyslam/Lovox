@@ -4,7 +4,8 @@ local function getPoints(model)
   local points, len = {}, 0
   for _,voxel in ipairs(model.voxels) do
     len = len + 1
-    local color = model.palette[voxel[4]]
+    local color8 = model.palette[voxel[4]]
+    local color = {color8[1]/255, color8[2]/255, color8[3]/255, color8[4]/255}
     local x,y,z = voxel[1], voxel[2], voxel[3]
     points[len] = { z * model.sizeX + x + 0.5,
                     y + 0.5,

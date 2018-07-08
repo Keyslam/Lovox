@@ -33,8 +33,7 @@ Cube:play()
 
 -- Load a model from a .vox
 -- !! Slow !!
-local vox = love.filesystem.newFile("barrier_bend.vox")
-local BarrierData = ModelData.newFromVox(vox) -- newFromVox is required here.
+local BarrierData = ModelData('barrier_bend.vox') -- newFromVox is required here.
 local Barrier     = Model(BarrierData)
 
 function love.update(dt)
